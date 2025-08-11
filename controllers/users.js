@@ -7,8 +7,6 @@ const {
   SERVER_ERROR,
 } = require("../utils/errors");
 
-//Get /users
-
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(OK).send(users))
