@@ -3,9 +3,7 @@ const {
   OK,
   CREATED,
   BAD_REQUEST,
-
   NOT_FOUND,
-
   SERVER_ERROR,
 } = require("../utils/errors");
 
@@ -14,7 +12,7 @@ const createItem = (req, res) => {
   console.log(req.body);
   const { name, weather, imageUrl } = req.body;
 
-  ClothingItem.create({ name, weather, imageUrl })
+  ClothingItem.create({ name, weather, imageUrl, owner: req.user._id })
     .then((item) => res.status(CREATED).json({ data: item }))
     .catch((err) => {
       console.log(err.name);
@@ -38,34 +36,6 @@ const getItems = (req, res) => {
       console.error(err);
       console.log(err.name);
 
-      return res
-        .status(SERVER_ERROR)
-        .json({ message: "An error has occurred on the server" });
-    });
-};
-const updateItem = (req, res) => {
-  const { itemId } = req.params;
-  const { imageUrl } = req.body;
-
-  console.log(itemId, imageUrl);
-
-  ClothingItem.findByIdAndUpdate(itemId, { $set: { imageUrl } })
-    .orFail()
-    .then((item) => res.status(OK).send({ data: item }))
-    .catch((err) => {
-      console.error(err);
-      console.log(err.name);
-      if (err.name === "ValidationError") {
-        return res.status(BAD_REQUEST).json({ message: "Invalid data" });
-      }
-      if (err.name === "CastError") {
-        return res
-          .status(BAD_REQUEST)
-          .json({ message: "Invalid item data format" });
-      }
-      if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND).json({ message: "Item not found" });
-      }
       return res
         .status(SERVER_ERROR)
         .json({ message: "An error has occurred on the server" });
@@ -158,7 +128,6 @@ const dislikeItem = (req, res) => {
 module.exports = {
   createItem,
   getItems,
-  updateItem,
   deleteItem,
   likeItem,
   dislikeItem,
