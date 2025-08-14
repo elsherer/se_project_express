@@ -21,9 +21,7 @@ const createItem = (req, res) => {
       if (err.name === "ValidationError") {
         return res.status(BAD_REQUEST).json({ message: "Invalid data" });
       }
-      if (err.name === "CastError") {
-        return res.status(BAD_REQUEST).json({ message: "Invalid data format" });
-      }
+
       return res
         .status(SERVER_ERROR)
         .json({ message: "An error has occurred on the server." });
