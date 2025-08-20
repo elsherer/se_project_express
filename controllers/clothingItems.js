@@ -3,6 +3,7 @@ const {
   OK,
   CREATED,
   BAD_REQUEST,
+  FORBIDDEN,
   NOT_FOUND,
   SERVER_ERROR,
 } = require("../utils/errors");
@@ -43,13 +44,27 @@ const getItems = (req, res) => {
 const deleteItem = (req, res) => {
   const { itemId } = req.params;
 
-  console.log(itemId);
-  ClothingItem.findByIdAndDelete(itemId)
-    .orFail()
-    .then((item) => res.status(OK).send({ data: item }))
+  ClothingItem.findById(itemId)
+    .orFail(() => {
+      const error = new Error("Item not found");
+      error.name = "DocumentNotFoundError";
+      throw error;
+    })
+    .then((item) => {
+      if (item.owner.toString() !== req.user._id) {
+        return res
+          .status(FORBIDDEN)
+          .json({ message: "You cannot delete another user's item" });
+      }
+
+      return ClothingItem.findByIdAndDelete(itemId).then((deletedItem) =>
+        res.status(OK).send({ data: deletedItem })
+      );
+    })
     .catch((err) => {
       console.error(err);
       console.log(err.name);
+
       if (err.name === "CastError") {
         return res.status(BAD_REQUEST).json({ message: "Invalid data" });
       }

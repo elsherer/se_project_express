@@ -2,6 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const mainRouter = require("./routes/index");
 const { NOT_FOUND } = require("./utils/errors");
+const auth = require("./middlewares/auth");
+const cors = require("cors");
 
 const app = express();
 const { PORT = 3001 } = process.env;
@@ -14,13 +16,8 @@ mongoose
   .catch(console.error);
 
 app.use(express.json());
-
-app.use((req, res, next) => {
-  req.user = {
-    _id: "68950cf2a9cc9c32c8346d42",
-  };
-  next();
-});
+app.use(cors());
+app.use(auth);
 
 app.use("/", mainRouter);
 
