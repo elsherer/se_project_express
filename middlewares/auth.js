@@ -9,8 +9,14 @@ const openRoutes = [
 ];
 
 module.exports = (req, res, next) => {
+  const normalizedPath =
+    req.path.endsWith("/") && req.path.length > 1
+      ? req.path.slice(0, -1)
+      : req.path;
+
   const isOpenRoute = openRoutes.some(
-    (route) => route.method === req.method && req.path === route.path
+    (route) =>
+      route.method === req.method && normalizedPath.startsWith(route.path)
   );
   if (isOpenRoute) {
     return next();

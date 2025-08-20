@@ -28,6 +28,12 @@ const getUsers = (req, res) => {
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
+  if (!email || !password) {
+    return res
+      .status(BAD_REQUEST)
+      .json({ message: "Email and password are required." });
+  }
+
   bcrypt
     .hash(password, 10)
     .then((hash) => {
@@ -86,7 +92,14 @@ const getCurrentUser = (req, res) => {
 
 const login = (req, res) => {
   const { email, password } = req.body;
-  return User.findUserByCredentials(email, password)
+
+  if (!email || !password) {
+    return res
+      .status(BAD_REQUEST)
+      .json({ message: "Email and password are required." });
+  }
+
+  User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
@@ -97,7 +110,9 @@ const login = (req, res) => {
     .catch((err) => {
       console.error(err);
       console.log(err.name);
-      res.status(UNAUTHORIZED).send({ message: "Incorrect email or password" });
+      return res
+        .status(SERVER_ERROR)
+        .json({ message: "An error has occurred on the server." });
     });
 };
 
