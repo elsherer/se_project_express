@@ -19,12 +19,12 @@ module.exports = (req, res, next) => {
       route.method === req.method && normalizedPath.startsWith(route.path)
   );
   if (isOpenRoute) {
-    return next();
+    next();
   }
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(UNAUTHORIZED).json({ message: "Authorization required" });
+    res.status(UNAUTHORIZED).json({ message: "Authorization required" });
   }
   const token = authHeader.replace("Bearer ", "");
 
@@ -35,6 +35,6 @@ module.exports = (req, res, next) => {
   } catch (err) {
     console.log(err.name);
     console.log(err.name);
-    return res.status(UNAUTHORIZED).json({ message: "Authorization required" });
+    res.status(UNAUTHORIZED).json({ message: "Authorization required" });
   }
 };
