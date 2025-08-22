@@ -20,10 +20,10 @@ const createItem = (req, res) => {
       console.log(err.name);
 
       if (err.name === "ValidationError") {
-        res.status(BAD_REQUEST).json({ message: "Invalid data" });
+        return res.status(BAD_REQUEST).json({ message: "Invalid data" });
       }
 
-      res
+      return res
         .status(SERVER_ERROR)
         .json({ message: "An error has occurred on the server." });
     });
@@ -35,7 +35,7 @@ const getItems = (req, res) => {
       console.error(err);
       console.log(err.name);
 
-      res
+      return res
         .status(SERVER_ERROR)
         .json({ message: "An error has occurred on the server" });
     });
@@ -52,7 +52,7 @@ const deleteItem = (req, res) => {
     })
     .then((item) => {
       if (item.owner.toString() !== req.user._id) {
-        res
+        return res
           .status(FORBIDDEN)
           .json({ message: "You cannot delete another user's item" });
       }
@@ -66,10 +66,10 @@ const deleteItem = (req, res) => {
       console.log(err.name);
 
       if (err.name === "CastError") {
-        res.status(BAD_REQUEST).json({ message: "Invalid data" });
+        return res.status(BAD_REQUEST).json({ message: "Invalid data" });
       }
       if (err.name === "DocumentNotFoundError") {
-        res.status(NOT_FOUND).json({ message: "Item not found" });
+        return res.status(NOT_FOUND).json({ message: "Item not found" });
       }
 
       res
@@ -95,12 +95,14 @@ const likeItem = (req, res) => {
       console.log(err.name);
 
       if (err.name === "CastError") {
-        res.status(BAD_REQUEST).json({ message: "Invalid item ID format" });
+        return res
+          .status(BAD_REQUEST)
+          .json({ message: "Invalid item ID format" });
       }
       if (err.name === "DocumentNotFoundError") {
-        res.status(NOT_FOUND).json({ message: "Item not found" });
+        return res.status(NOT_FOUND).json({ message: "Item not found" });
       }
-      res
+      return res
         .status(SERVER_ERROR)
         .json({ message: "An error has occurred on the server." });
     });
@@ -123,12 +125,14 @@ const dislikeItem = (req, res) => {
       console.log(err.name);
 
       if (err.name === "CastError") {
-        res.status(BAD_REQUEST).json({ message: "Invalid item ID format" });
+        return res
+          .status(BAD_REQUEST)
+          .json({ message: "Invalid item ID format" });
       }
       if (err.name === "DocumentNotFoundError") {
-        res.status(NOT_FOUND).json({ message: "Item not found" });
+        return res.status(NOT_FOUND).json({ message: "Item not found" });
       }
-      res
+      return res
         .status(SERVER_ERROR)
         .json({ message: "An error has occurred on the server." });
     });

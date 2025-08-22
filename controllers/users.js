@@ -16,24 +16,24 @@ const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
 
   if (!email || !password) {
-    res
+    return res
       .status(BAD_REQUEST)
       .json({ message: "Email and password are required." });
   }
 
   bcrypt
     .hash(password, 10)
-    .then((hash) => {
+    .then((hash) =>
       User.create({
         name,
         avatar,
         email,
         password: hash,
-      });
-    })
+      })
+    )
 
     .then((user) => {
-      res.status(CREATED).send({
+      return res.status(CREATED).send({
         _id: user._id,
         name: user.name,
         avatar: user.avatar,
@@ -61,15 +61,17 @@ const getCurrentUser = (req, res) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        res.status(NOT_FOUND).send({ message: "User not found" });
+        return res.status(NOT_FOUND).send({ message: "User not found" });
       }
-      res.status(OK).send(user);
+      return res.status(OK).send(user);
     })
     .catch((err) => {
       if (err.name === "CastError") {
-        res.status(BAD_REQUEST).send({ message: "Invalid user ID format" });
+        return res
+          .status(BAD_REQUEST)
+          .send({ message: "Invalid user ID format" });
       }
-      res
+      return res
         .status(SERVER_ERROR)
         .send({ message: "An error has occurred on the server" });
     });
@@ -82,6 +84,7 @@ const login = (req, res) => {
     res
       .status(BAD_REQUEST)
       .json({ message: "Email and password are required." });
+    return;
   }
 
   User.findUserByCredentials(email, password)
@@ -90,15 +93,17 @@ const login = (req, res) => {
         expiresIn: "7d",
       });
 
-      res.send({ token });
+      return res.send({ token });
     })
     .catch((err) => {
       console.error(err);
       console.log(err.name);
       if (err.message === "Incorrect email or password") {
-        res.status(UNAUTHORIZED).json({ message: "Authorization required" });
+        return res
+          .status(UNAUTHORIZED)
+          .json({ message: "Authorization required" });
       }
-      res
+      return res
         .status(SERVER_ERROR)
         .json({ message: "An error has occurred on the server" });
     });
@@ -114,15 +119,15 @@ const updateUserProfile = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        res.status(NOT_FOUND).send({ message: "User not found" });
+        return res.status(NOT_FOUND).send({ message: "User not found" });
       }
-      res.status(OK).send(user);
+      return res.status(OK).send(user);
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(BAD_REQUEST).send({ message: "Invalid user data" });
+        return res.status(BAD_REQUEST).send({ message: "Invalid user data" });
       }
-      res
+      return res
         .status(SERVER_ERROR)
         .send({ message: "An error has occurred on the server" });
     });
